@@ -21,7 +21,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation group: 'com.google.guava', name: 'guava', version: '23.0'
+    implementation 'org.redisson:redisson:3.13.3'
     implementation 'org.liquibase:liquibase-core'
+    implementation "io.lettuce:lettuce-core:5.2.2.RELEASE"
     compileOnly "org.projectlombok:lombok:1.18.10"
     annotationProcessor "org.projectlombok:lombok:1.18.10"
     runtimeOnly 'io.micrometer:micrometer-registry-prometheus'

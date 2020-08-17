@@ -1,7 +1,5 @@
 package com.nikolaynikolov.primenumberapi.service;
 
-import com.nikolaynikolov.primenumberapi.cache.Cache;
-import com.nikolaynikolov.primenumberapi.cache.LocalCache;
 import com.nikolaynikolov.primenumberapi.model.User;
 import com.nikolaynikolov.primenumberapi.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,21 +18,21 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserDetailsService {
 
   private final UserRepository userRepository;
-
-  private final Cache<String, User> userCache;
+  private final CacheService cacheService;
 
   @Autowired
-  public UserServiceImpl(UserRepository userRepository) {
+  public UserServiceImpl(UserRepository userRepository, CacheService cacheService) {
     this.userRepository = userRepository;
-    this.userCache = new LocalCache<>();
+    this.cacheService = cacheService;
   }
 
   public Optional<User> getUserByKey(String key) {
-    if (userCache.contains(key)) {
-      return Optional.of(userCache.get(key));
+    User u = cacheService.getUser(key);
+    if (u != null) {
+      return Optional.of(u);
     }
     var rawUser = this.userRepository.findFirstByKey(key);
-    rawUser.ifPresent(user -> userCache.set(key, user));
+    rawUser.ifPresent(user -> cacheService.setUser(key, user));
     return rawUser;
   }
 
