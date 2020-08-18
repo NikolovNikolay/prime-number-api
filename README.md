@@ -17,10 +17,10 @@ The API will check if a provided number in range between `2 and 10 000 000` is p
 6. Project should be listening on local port`8080`
 
 ##API documentation
-After running the project you can access Swagger here -> [http://localhost:8080/swagger-ui.html](hhttp://localhost:8080/swagger-ui.html)
+After running the project you can access Swagger here -> [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
 
 ##Application metrics
-Prometheus is accessible here -> [http://localhost:9090](hhttp://localhost:9090)
+Prometheus is accessible here -> [http://localhost:9090](http://localhost:9090)
 
 * Prime numbers calculation time metric -> [http://localhost:9090/graph?g0.range_input=1h&g0.expr=primenumber_calculation_seconds_max&g0.tab=0](http://localhost:9090/graph?g0.range_input=1h&g0.expr=primenumber_calculation_seconds_max&g0.tab=0)
 * API request count -> [http://localhost:9090/graph?g0.range_input=1h&g0.expr=request_counter_total&g0.tab=0](http://localhost:9090/graph?g0.range_input=1h&g0.expr=request_counter_total&g0.tab=0)
