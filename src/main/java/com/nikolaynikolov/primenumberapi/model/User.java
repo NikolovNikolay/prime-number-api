@@ -32,8 +32,5 @@ public class User implements Serializable {
       joinColumns = @JoinColumn(name = "user_id"),
       inverseJoinColumns = @JoinColumn(name = "permission"))
   private Set<Permission> permissions = new HashSet<>();
-
-  protected User() {
-  }
 }
 

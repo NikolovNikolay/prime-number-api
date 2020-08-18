@@ -1,7 +1,7 @@
 package com.nikolaynikolov.primenumberapi.service;
 
 import com.nikolaynikolov.primenumberapi.model.User;
-import org.redisson.api.RMap;
+import org.redisson.RedissonShutdownException;
 import org.redisson.api.RMapCache;
 import org.redisson.api.RSetCache;
 import org.redisson.api.RedissonClient;
@@ -25,7 +25,7 @@ public class CacheService {
   }
 
   public User getUser(String key) {
-    RMap<String, User> userMap = redissonClient.getMap(USER_MAP);
+    RMapCache<String, User> userMap = redissonClient.getMapCache(USER_MAP);
     return userMap.get(key);
   }
 
@@ -34,22 +34,37 @@ public class CacheService {
     userMap.put(key, user, 1, TimeUnit.HOURS);
   }
 
-  public void setPrimeNumbers(List<Long> numbers) {
-    RSetCache<Long> primeNumberSet = redissonClient.getSetCache(PRIME_NUMBER_SET);
-    primeNumberSet.addAllAsync(numbers);
+  public void setPrimeNumbers(List<Integer> numbers) {
+    if (!redissonClient.isShutdown()) {
+      RSetCache<Integer> primeNumberSet = redissonClient.getSetCache(PRIME_NUMBER_SET);
+      primeNumberSet.addAll(numbers);
+    }
   }
 
-  public boolean checkIfPrimeNumber(Long number) {
-    RSetCache<Long> primeNumberSet = redissonClient.getSetCache(PRIME_NUMBER_SET);
-    return primeNumberSet.contains(number);
+  public boolean checkIfPrimeNumber(Integer number) {
+    if (!redissonClient.isShutdown()) {
+      RSetCache<Integer> primeNumberSet = redissonClient.getSetCache(PRIME_NUMBER_SET);
+      return primeNumberSet.contains(number);
+    }
+    throw new RedissonShutdownException("Can't check number - redisson is shutdown");
   }
 
-  public Long getNextPrimeNumber(Long number) {
-    for (long i = number; i < number * 2; i++) {
+  public Integer getNextPrimeNumber(Integer number) {
+    if (number == null) {
+      return null;
+    }
+    for (int i = number + 1; i < number * 2; i++) {
       if (checkIfPrimeNumber(i)) {
         return i;
       }
     }
     return null;
+  }
+
+  public void disposeSetPrimeNumberCache() {
+    if (!redissonClient.isShutdown()) {
+      RSetCache<Integer> primeNumberSet = redissonClient.getSetCache(PRIME_NUMBER_SET);
+      primeNumberSet.clear();
+    }
   }
 }

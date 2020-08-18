@@ -23,6 +23,9 @@ services:
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
   primeapi:
+    command:
+      - chmod +x gradlew
+      - ./gradlew clean build
     build:
       context: .
       dockerfile: Dockerfile

@@ -8,8 +8,4 @@ public class TooManyRequestsException extends RuntimeException {
   public TooManyRequestsException() {
     super("You have exceeded your rate limits for the API");
   }
-
-  public TooManyRequestsException(String message) {
-    super(message);
-  }
 }

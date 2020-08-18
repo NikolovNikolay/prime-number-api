@@ -12,26 +12,43 @@ repositories {
     mavenCentral()
 }
 
+project.ext {
+    lettuce = '5.2.2.RELEASE'
+    redisson = '3.13.3'
+    swagger = '2.9.2'
+    lombok = '1.18.10'
+    testcontainers = '1.14.3'
+    junit = '4.13'
+    mockito = '3.5.0'
+}
+
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
-    implementation 'org.springframework.boot:spring-boot-starter-jersey'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-webflux'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation group: 'com.google.guava', name: 'guava', version: '23.0'
-    implementation 'org.redisson:redisson:3.13.3'
-    implementation 'org.liquibase:liquibase-core'
-    implementation "io.lettuce:lettuce-core:5.2.2.RELEASE"
-    compileOnly "org.projectlombok:lombok:1.18.10"
-    annotationProcessor "org.projectlombok:lombok:1.18.10"
-    implementation 'io.micrometer:micrometer-registry-prometheus'
-    runtimeOnly 'org.postgresql:postgresql'
+    implementation "org.springframework.boot:spring-boot-starter-data-jpa"
+    implementation "org.springframework.boot:spring-boot-starter-jdbc"
+    implementation "org.springframework.boot:spring-boot-starter-jersey"
+    implementation "org.springframework.boot:spring-boot-starter-web"
+    implementation "org.springframework.boot:spring-boot-starter-webflux"
+    implementation "org.springframework.boot:spring-boot-starter-security"
+    implementation "org.springframework.boot:spring-boot-starter-actuator"
+    implementation "org.liquibase:liquibase-core"
+    implementation "io.micrometer:micrometer-registry-prometheus"
+    implementation "org.redisson:redisson:${redisson}"
+    implementation "io.lettuce:lettuce-core:${lettuce}"
+    implementation "io.springfox:springfox-swagger2:${swagger}"
+    implementation "io.springfox:springfox-swagger-ui:${swagger}"
+
+    runtimeOnly "org.postgresql:postgresql"
+    compileOnly "org.projectlombok:lombok:${lombok}"
+    annotationProcessor "org.projectlombok:lombok:${lombok}"
+
+    testCompile "junit:junit:${junit}"
+    testCompile "org.testcontainers:testcontainers:${testcontainers}"
+    testCompile "org.testcontainers:postgresql:${testcontainers}"
+    testCompile "org.mockito:mockito-core:${mockito}"
+
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
-    testImplementation 'io.projectreactor:reactor-test'
 }
 
 test {

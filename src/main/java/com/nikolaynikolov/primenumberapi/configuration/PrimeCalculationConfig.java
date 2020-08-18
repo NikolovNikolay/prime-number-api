@@ -8,5 +8,5 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ConfigurationProperties(prefix = "prime")
 public class PrimeCalculationConfig {
-  private Long max;
+  private Integer max;
 }

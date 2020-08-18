@@ -1,12 +1,19 @@
 package com.nikolaynikolov.primenumberapi.rest;
 
-import lombok.Builder;
 import lombok.Data;
 
 @Data
-@Builder
 public class NextPrimeNumberResponse {
 
-  private Long nextPrime;
-  private Long number;
+  private Integer nextPrime;
+  private Integer number;
+
+  public NextPrimeNumberResponse(Integer nextPrime, Integer number) {
+    this.nextPrime = nextPrime;
+    this.number = number;
+  }
+
+  public NextPrimeNumberResponse() {
+    // jackson serialization constructor
+  }
 }

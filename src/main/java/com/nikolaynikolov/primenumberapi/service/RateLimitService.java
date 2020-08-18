@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class RateLimitService {
-
+  
   private final RedissonClient redissonClient;
   private final RateLimitConfig rateLimiterConfig;
 
@@ -22,7 +22,6 @@ public class RateLimitService {
 
   public boolean canProceed(String ip) {
     var rateLimiter = redissonClient.getRateLimiter(ip);
-    rateLimiter.trySetRate(RateType.PER_CLIENT, rateLimiterConfig.getMaxPerMinute(), 1, RateIntervalUnit.MINUTES);
     rateLimiter.trySetRate(RateType.PER_CLIENT, rateLimiterConfig.getMaxPerSecond(), 1, RateIntervalUnit.SECONDS);
     return rateLimiter.tryAcquire();
   }
