@@ -70,7 +70,8 @@ public class PrimeNumberApiController {
     try {
       applyRateLimit(userKey);
       int num = validateNumber(number);
-      meterRegistry.counter(NUMBER_INPUT_COUNTER, NUMBER_INPUT_TAG, String.valueOf(num), ENDPOINT_NAME_TAG, ENDPOINT_NAME_IF_PRIME_VALUE);
+      meterRegistry.counter(NUMBER_INPUT_COUNTER, NUMBER_INPUT_TAG, String.valueOf(num), ENDPOINT_NAME_TAG,
+          ENDPOINT_NAME_IF_PRIME_VALUE).increment();
       sendRequestMetric(userKey, "200", ENDPOINT_NAME_IF_PRIME_VALUE);
       return new PrimeNumberResponse(cacheService.checkIfPrimeNumber(num), num);
     } catch (NotSupportedNumberException e) {
@@ -100,7 +101,8 @@ public class PrimeNumberApiController {
       applyRateLimit(userKey);
       int num = validateNumber(number);
       var nextPrime = cacheService.getNextPrimeNumber(num);
-      meterRegistry.counter(NUMBER_INPUT_COUNTER, NUMBER_INPUT_TAG, String.valueOf(num), ENDPOINT_NAME_TAG, ENDPOINT_NAME_NEXT_PRIME_VALUE);
+      meterRegistry.counter(NUMBER_INPUT_COUNTER, NUMBER_INPUT_TAG, String.valueOf(num), ENDPOINT_NAME_TAG,
+          ENDPOINT_NAME_NEXT_PRIME_VALUE).increment();
       sendRequestMetric(userKey, "200", ENDPOINT_NAME_NEXT_PRIME_VALUE);
       return new NextPrimeNumberResponse(nextPrime, num);
     } catch (TooManyRequestsException e) {
@@ -127,11 +129,10 @@ public class PrimeNumberApiController {
     }
   }
 
-  private String applyRateLimit(String key) {
+  private void applyRateLimit(String key) {
     if (!rateLimitService.canProceed(key)) {
       throw new TooManyRequestsException();
     }
-    return key;
   }
 
   private String getUserKey(@Context HttpServletRequest request) {

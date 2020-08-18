@@ -1,8 +1,9 @@
 package com.nikolaynikolov.primenumberapi;
 
+import com.google.common.base.Stopwatch;
 import com.nikolaynikolov.primenumberapi.configuration.PrimeCalculationConfig;
 import com.nikolaynikolov.primenumberapi.service.CacheService;
-import io.micrometer.core.annotation.Timed;
+import io.micrometer.core.instrument.Metrics;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -11,11 +12,13 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
- * The {@link PrimeNumberPopulateRunner#run(ApplicationArguments)} method is executed on application start.
+ * The {@link PrimeNumberCalculationRunner#run(ApplicationArguments)} method is executed on application start.
  * It will then start calculating all prime numbers in the range between 2 and 10_000_000.
  * <p>
  * The logic will split the number to several parts and utilize the configured {@link ThreadPoolTaskExecutor} in
@@ -49,16 +52,16 @@ import java.util.List;
  * <p>
  */
 @Component
-public class PrimeNumberPopulateRunner implements ApplicationRunner {
+public class PrimeNumberCalculationRunner implements ApplicationRunner {
 
   private final ThreadPoolTaskExecutor executor;
   private final CacheService cacheService;
   private final PrimeCalculationConfig primeCalculationConfig;
 
   @Autowired
-  public PrimeNumberPopulateRunner(@Qualifier("threadPoolTaskExecutor") ThreadPoolTaskExecutor executor,
-                                   CacheService cacheService,
-                                   PrimeCalculationConfig primeCalculationConfig) {
+  public PrimeNumberCalculationRunner(@Qualifier("threadPoolTaskExecutor") ThreadPoolTaskExecutor executor,
+                                      CacheService cacheService,
+                                      PrimeCalculationConfig primeCalculationConfig) {
     this.executor = executor;
     this.cacheService = cacheService;
     this.primeCalculationConfig = primeCalculationConfig;
@@ -88,10 +91,9 @@ public class PrimeNumberPopulateRunner implements ApplicationRunner {
       this.end = end;
     }
 
-    @Timed(longTask = true, value = "prime_number_calculation")
     @Override
     public void run() {
-
+      Stopwatch stopwatch = Stopwatch.createStarted();
       // Maintaining the primes array list is considered thread safe as each of the 3 threads
       // instantiates it's own instance in heap
       var primes = new ArrayList<Integer>();
@@ -111,6 +113,11 @@ public class PrimeNumberPopulateRunner implements ApplicationRunner {
       }
       cacheService.setPrimeNumbers(primes);
 
+      Metrics.timer("primenumber.calculation",
+          "type", "multiThread",
+          "rangeStart", String.valueOf(start),
+          "rangeEnd", String.valueOf(end))
+          .record(Duration.ofNanos(stopwatch.stop().elapsed(TimeUnit.NANOSECONDS)));
       log.info("Prime numbers pre-calculation finished: " + range);
     }
 
@@ -132,9 +139,9 @@ public class PrimeNumberPopulateRunner implements ApplicationRunner {
       super(cacheService, start, end);
     }
 
-    @Timed(longTask = true, value = "sieve_of_eratosthenes_calculation")
     @Override
     public void run() {
+      Stopwatch stopwatch = Stopwatch.createStarted();
       var range = start + " to " + end;
 
       log.info("Starting prime numbers pre-calculation: " + range);
@@ -162,6 +169,12 @@ public class PrimeNumberPopulateRunner implements ApplicationRunner {
         }
       }
       cacheService.setPrimeNumbers(primes);
+
+      Metrics.timer("primenumber.calculation",
+          "type", "sieveOfEratosthenes",
+          "rangeStart", String.valueOf(start),
+          "rangeEnd", String.valueOf(end))
+          .record(Duration.ofNanos(stopwatch.stop().elapsed(TimeUnit.NANOSECONDS)));
       log.info("Prime numbers pre-calculation finished: " + range);
     }
   }
